@@ -81,7 +81,6 @@ module.exports = (req, res, next) => {
       } catch (error) {
         console.log("ERROR MULTER -- ", error);
         next(error);
-        // je rajoute ce code pour test
       }
     });
   });
