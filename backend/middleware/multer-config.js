@@ -19,9 +19,9 @@ const storage = multer.diskStorage({
 
   filename: (req, file, callback) => {
     //On définit comment les noms de fichier sont générées
-    const name = file.originalname.split(" ").join("_"); //On utilise le nom d'origine, on remplace les espaces par des underscores
+    const name = file.originalname.split(".")[0]; //On utilise le nom d'origine, on remplace les espaces par des underscores
     const extension = MIME_TYPES[file.mimetype];
-    callback(null, name + Date.now() + "." + extension); //on ajoute un timestamp unique, et on ajoute l'extension en fonction du type MIME.
+    callback(null, name + ".webp"); //on ajoute un timestamp unique, et on ajoute l'extension en fonction du type MIME.
   },
 });
 
@@ -58,23 +58,22 @@ module.exports = (req, res, next) => {
       }
 
       try {
-        const imagePath = req.file ? req.file.path : null;
-        console.log("le chemin est : " + imagePath);
-        console.log("Ca marche 1!");
-        if (imagePath) {
-          console.log("Ca marche 2!");
+        const originalFileName = req.file ? req.file.path : null;
+        console.log("le nom du fichier original est : " + originalFileName);
+        if (originalFileName) {
           // si la requete contient un fichier et que tout se passe bien , on utilise sharp pour redimensionner et convertir l'image en format webp.
-
-          await sharp(imagePath)
+          let compressedFileName =
+            req.file.path.split(".")[0] + "compressed.webp";
+          await sharp(originalFileName)
             .resize(800)
             .webp({ quality: 80 })
-            .toFile(`${imagePath}-compressed.webp`);
+            .toFile(`${compressedFileName}`);
 
-          fs.unlinkSync(imagePath); // on supprime l'image d'origine
-          console.log(imagePath);
-          console.log(`Fichier d'origine supprimé : ${imagePath}`);
-          fs.renameSync(`${imagePath}-compressed`, imagePath); // on renomme l'image compressée avec le nom de l'image d'origine
-          console.log(`Fichier compressé renommé : ${imagePath}`);
+          fs.unlinkSync(originalFileName); // on supprime l'image d'origine
+          console.log(`Fichier d'origine supprimé : ${originalFileName}`);
+          // Erreur sur la version utiliser et la verison de sharp utilisé
+          fs.renameSync(`${compressedFileName}`, originalFileName); // on renomme l'image compressée avec le nom de l'image d'origine
+          console.log(`Fichier compressé renommé : ${originalFileName}`); // A eliminer
         }
 
         next(); // on passe au middleware suivant
