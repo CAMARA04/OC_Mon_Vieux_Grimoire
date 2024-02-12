@@ -1,3 +1,5 @@
+//*******Routeur Express pour gérer les requêtes liées à l'inscription et à la connexion des utilisateurs***/
+
 const express = require("express");
 const router = express.Router();
 const userCtrl = require("../controllers/user");

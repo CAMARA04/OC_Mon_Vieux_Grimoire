@@ -1,14 +1,16 @@
+// **************Implémentation d'un service CRUD (Create, Read, Update, Delete) pour gérer des livres dans l'application*************
+
+//Importation des modules nécessaires
 const Book = require("../models/Book");
-const fs = require("fs");
-// const sharp = require("sharp");
+const fs = require("fs"); //permet d'effectuer des opérations sur les fichiers
 
 exports.createBook = (req, res, next) => {
-  const bookObject = JSON.parse(req.body.book);
-  delete bookObject._id;
-  delete bookObject.userId;
+  const bookObject = JSON.parse(req.body.book); //Récupération des données du livre
+  delete bookObject._id; //Suppression de l'id
+  delete bookObject.userId; //Suppression de User id
 
   const book = new Book({
-    ...bookObject,
+    ...bookObject, //Syntaxe spread pour inclure les proprietés de l'objet bookobject dansl'instance
     userId: req.auth.userId,
     imageUrl: `${req.protocol}://${req.get("host")}/images/${
       req.file.filename
@@ -26,14 +28,17 @@ exports.createBook = (req, res, next) => {
 };
 
 exports.modifyBook = (req, res, next) => {
-  const bookObject = req.file
+  const bookObject = req.file //requete contient un fichier?
     ? {
-        ...JSON.parse(req.body.book),
+        ...JSON.parse(req.body.book), //Parse les données JSON de req.body.book
+
+        // Construction de l'URL de l'image
         imageUrl: `${req.protocol}://${req.get("host")}/images/${
           req.file.filename
         }`,
       }
-    : { ...req.body };
+    : // si aucun fichier n'est présent dans la requête=>syntaxe de spread (...) pour créer une copie de toutes les propriétés de req.body
+      { ...req.body };
 
   delete bookObject._userId;
   Book.findOne({ _id: req.params.id })
@@ -140,6 +145,7 @@ exports.rateBook = (req, res, next) => {
     .catch((error) => res.status(500).json({ erreur: error }));
 };
 
+// Pour récuperer les trois livres les mieux notés de la base de données et renvoie une réponse JSON avec ces livres.
 exports.getBestRatedBooks = (req, res, next) => {
   Book.find()
     .sort({ averageRating: -1 }) // Trie par ordre décroissant de la note moyenne
@@ -152,5 +158,3 @@ exports.getBestRatedBooks = (req, res, next) => {
       res.status(500).json({ error: "Erreur serveur." });
     });
 };
-
-// Faire appel au serveur que 2 fois , une fois pour recuperer les donnees et une fois pour la sauvegarde

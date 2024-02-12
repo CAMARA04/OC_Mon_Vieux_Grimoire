@@ -1,4 +1,6 @@
-const mongoose = require("mongoose");
+// *******Schema de données pour un modèle de livre*******
+
+const mongoose = require("mongoose"); //import du module mongoose(bibliotheque Javascript)
 
 const bookSchema = mongoose.Schema({
   userId: { type: String, required: true },
@@ -16,4 +18,5 @@ const bookSchema = mongoose.Schema({
   averageRating: { type: Number, default: 0, required: true },
 });
 
+// Creation du modéle de données pour le livre
 module.exports = mongoose.model("Book", bookSchema);
