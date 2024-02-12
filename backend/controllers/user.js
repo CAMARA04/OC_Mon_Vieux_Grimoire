@@ -1,9 +1,6 @@
 const bcrypt = require("bcrypt"); //Bibliotheque utilisée pour le hachage sécurisée des mots de passe
 const jwt = require("jsonwebtoken"); //importation du module jsonwebtoken
 const User = require("../models/User");
-// const PasswordSchema = require("../models/password");
-const validator = require("validator"); //module validator
-
 const isEmailValid = require("../utils/emailValid");
 const {
   isPasswordValid,
