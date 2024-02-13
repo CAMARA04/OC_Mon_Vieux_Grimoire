@@ -3,7 +3,7 @@
 //Importation des modules nécessaires
 const express = require("express");
 const auth = require("../middleware/auth");
-const router = express.Router();
+const router = express.Router(); //Methode router
 const multer = require("../middleware/multer-config");
 
 const booksCtrl = require("../controllers/books"); //importe le contrôleur de books qui contient les fonctions de gestion des requêtes relatives aux livres

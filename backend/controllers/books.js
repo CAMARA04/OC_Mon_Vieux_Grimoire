@@ -18,8 +18,9 @@ exports.createBook = (req, res, next) => {
   });
 
   book
-    .save()
+    .save() // enregistre le livre dans la base de données
     .then(() => {
+      //Réponse en fonction du succés ou de l'échec de l'opération
       res.status(201).json({ message: "Livre enregistré !" });
     })
     .catch((error) => {
@@ -41,14 +42,15 @@ exports.modifyBook = (req, res, next) => {
       { ...req.body };
 
   delete bookObject._userId;
-  Book.findOne({ _id: req.params.id })
+  Book.findOne({ _id: req.params.id }) // pour trouver le livre à modifier en foncion de son ID
     .then((book) => {
+      //Vérification si utilisateur est autorisé à modifier le livre
       if (book.userId != req.auth.userId) {
         res.status(401).json({ message: "Not authorized" });
       } else {
         Book.updateOne(
-          { _id: req.params.id },
-          { ...bookObject, _id: req.params.id }
+          { _id: req.params.id }, //Garantit que l'id du livre reste inchangé dans la Base de données
+          { ...bookObject, _id: req.params.id } //Argument qui specifie les nouvelles valeurs à mettre à jour
         )
           .then(() => res.status(200).json({ message: "Livre modifié!" }))
           .catch((error) => res.status(401).json({ error }));
@@ -67,6 +69,7 @@ exports.deleteBook = (req, res, next) => {
       } else {
         const filename = book.imageUrl.split("/images/")[1];
         fs.unlink(`images/${filename}`, () => {
+          //Suppression du livre de la base de données en fonction de son ID
           Book.deleteOne({ _id: req.params.id })
             .then(() => {
               res.status(200).json({ message: "Livre supprimé !" });
@@ -87,16 +90,16 @@ exports.getOneBook = (req, res, next) => {
 };
 
 exports.getAllBooks = (req, res, next) => {
-  Book.find()
+  Book.find() //Recherche tous les documents dans la collection Book
     .then((books) => res.status(200).json(books))
     .catch((error) => res.status(400).json({ error }));
 };
 
 exports.rateBook = (req, res, next) => {
   // Récupération des données de la requête HTTP
-  const bookId = req.params.id;
-  const userId = req.auth.userId;
-  const rating = req.body.rating;
+  const bookId = req.params.id; //Récupere l'Id du livre à évaluer
+  const userId = req.auth.userId; //Récupere l'id de l'utilisateur
+  const rating = req.body.rating; //Récupere note attribuée au livre dans le corps de la requête
 
   // Validation de la note
   if (rating < 0 || rating > 5) {
@@ -104,7 +107,7 @@ exports.rateBook = (req, res, next) => {
   }
 
   // Recherche du livre : Objectif est de trouver le livre le bookid spécifié
-  Book.findOne({ _id: bookId })
+  Book.findOne({ _id: bookId }) //Trouve le livre dans la bd en fonction de l'id
     .then((book) => {
       if (!book) {
         return res.status(404).json({ error: "Livre non trouvé" });
@@ -125,8 +128,9 @@ exports.rateBook = (req, res, next) => {
       //Mise à jour des notations: Si l'utilisateur n'a pas encore noté le livre , il ajoute la nouvelle note à l'array 'ratings' du livre
       book.ratings.push({ userId, grade: rating });
 
-      // Calcul de la nouvelle moyenne de notation
+      //Calcul du nombre total de notations
       const totalRatings = book.ratings.length;
+      // Calcul de la nouvelle moyenne de notation:methode reduce sur l'array book.ratings =>Itére sur chaque élément et accumule la somme des valeurs de notation dans la variable sum puis divise par totalRatings
       const newAverageRating =
         totalRatings > 0
           ? book.ratings.reduce((sum, rating) => sum + rating.grade, 0) /
@@ -134,7 +138,7 @@ exports.rateBook = (req, res, next) => {
           : 0;
 
       // Mise à jour de la moyenne de notation
-      book.averageRating = parseFloat(newAverageRating.toFixed(1));
+      book.averageRating = parseFloat(newAverageRating.toFixed(1)); //Conversion en float et arrondi à une décimale
 
       // Enregistrement du livre mis à jour
       return book.save();

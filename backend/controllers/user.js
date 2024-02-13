@@ -1,3 +1,5 @@
+//*****Gére les requêtes d'inscription et de connexion des utilisateurs*********
+
 const bcrypt = require("bcrypt"); //Bibliotheque utilisée pour le hachage sécurisée des mots de passe
 const jwt = require("jsonwebtoken"); //importation du module jsonwebtoken
 const User = require("../models/User");
@@ -10,7 +12,6 @@ const {
 exports.signup = async (req, res, next) => {
   try {
     // Vérification de la validité de l'email
-
     if (!isEmailValid(req.body.email)) {
       return res.status(400).json({
         message: `adresse email non valide!`,
@@ -63,10 +64,11 @@ exports.login = async (req, res, next) => {
       return res.status(401).json({ message: "Mot de passe incorrecte" });
     }
 
+    //On genere un jeton JWT (Prend 3 parametres: Id/clé secrete /expiration)
     const token = jwt.sign({ userId: user._id }, process.env.SECRETTOKEN, {
       expiresIn: "24h",
     });
-
+    //Etat de la réponse puis envoi réponse JSON avec 2 proprietés
     res.status(200).json({
       userId: user._id,
       token: token,

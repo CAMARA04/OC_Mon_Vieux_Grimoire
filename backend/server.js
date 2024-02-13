@@ -1,3 +1,5 @@
+//*****création serveur HTTP Node.js en utilisant le module http et l'application Express****
+
 const http = require("http");
 const app = require("./app");
 
@@ -15,6 +17,7 @@ const normalizePort = (val) => {
 const port = normalizePort(process.env.PORT || "3000");
 app.set("port", port);
 
+//Pour gerer les erreurs liées au serveur
 const errorHandler = (error) => {
   if (error.syscall !== "listen") {
     throw error;
@@ -36,6 +39,7 @@ const errorHandler = (error) => {
   }
 };
 
+//Création du serveur HTTP
 const server = http.createServer(app);
 
 server.on("error", errorHandler);
@@ -45,4 +49,5 @@ server.on("listening", () => {
   console.log("Listening on " + bind);
 });
 
+//Démarrage du serveur
 server.listen(port);

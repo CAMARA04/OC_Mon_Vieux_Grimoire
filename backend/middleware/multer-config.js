@@ -1,6 +1,8 @@
+//***********Middleware pour gérer le telechargement d'images*******
+
 //Import des modules necessaires
-const multer = require("multer"); //Pour la gestion des fichiers
-const sharp = require("sharp"); //Pour manipuler les images
+const multer = require("multer"); //Module pour la gestion des fichiers
+const sharp = require("sharp"); //Module pour manipuler les images
 const fs = require("fs"); //Pour réaliser des opérations sur les fichiers
 
 //Associe les types MIM des images à leurs extensions correspondantes
@@ -18,10 +20,9 @@ const storage = multer.diskStorage({
   },
 
   filename: (req, file, callback) => {
-    //On définit comment les noms de fichier sont générées
-    const name = file.originalname.split(".")[0]; //On utilise le nom d'origine, on remplace les espaces par des underscores
-    const extension = MIME_TYPES[file.mimetype];
-    callback(null, name + ".webp"); //on ajoute un timestamp unique, et on ajoute l'extension en fonction du type MIME.
+    //On définit comment les noms de fichier sont générées.Définit repertoire de destination + nom fichier
+    const name = file.originalname.split(".")[0]; //On extrait le nom du fichier sans son extension
+    callback(null, name + ".webp");
   },
 });
 
@@ -59,7 +60,7 @@ module.exports = (req, res, next) => {
 
       try {
         const originalFileName = req.file ? req.file.path : null;
-        console.log("le nom du fichier original est : " + originalFileName);
+
         if (originalFileName) {
           // si la requete contient un fichier et que tout se passe bien , on utilise sharp pour redimensionner et convertir l'image en format webp.
           let compressedFileName =
@@ -70,10 +71,7 @@ module.exports = (req, res, next) => {
             .toFile(`${compressedFileName}`);
 
           fs.unlinkSync(originalFileName); // on supprime l'image d'origine
-          console.log(`Fichier d'origine supprimé : ${originalFileName}`);
-          // Erreur sur la version utiliser et la verison de sharp utilisé
           fs.renameSync(`${compressedFileName}`, originalFileName); // on renomme l'image compressée avec le nom de l'image d'origine
-          console.log(`Fichier compressé renommé : ${originalFileName}`); // A eliminer
         }
 
         next(); // on passe au middleware suivant
