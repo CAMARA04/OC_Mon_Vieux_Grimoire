@@ -5,13 +5,13 @@ const multer = require("multer"); //Module pour la gestion des fichiers
 const sharp = require("sharp"); //Module pour manipuler les images
 const fs = require("fs"); //Pour réaliser des opérations sur les fichiers
 
-//Associe les types MIM des images à leurs extensions correspondantes
-const MIME_TYPES = {
-  "image/jpg": "jpg",
-  "image/jpeg": "jpg",
-  "image/png": "png",
-  "image/webp": "webp",
-};
+//Associe les types MIM des images à leurs extensions correspondantes:Utilisés au début mais non conservés pour laisser apparaitre l'extension webp
+// const MIME_TYPES = {
+//   "image/jpg": "jpg",
+//   "image/jpeg": "jpg",
+//   "image/png": "png",
+//   "image/webp": "webp",
+// };
 
 //Configuration de multer pour le stockage des fichiers
 const storage = multer.diskStorage({
@@ -22,6 +22,7 @@ const storage = multer.diskStorage({
   filename: (req, file, callback) => {
     //On définit comment les noms de fichier sont générées.Définit repertoire de destination + nom fichier
     const name = file.originalname.split(".")[0]; //On extrait le nom du fichier sans son extension
+    // const extension = MIME_TYPES[file.mimetype];
     callback(null, name + ".webp");
   },
 });
